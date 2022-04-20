@@ -1,9 +1,11 @@
 ﻿using BusinessLayer.Interfaces;
 using CommonLayer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RepositoryLayer.Context;
 using RepositoryLayer.Services;
+using System.Security.Claims;
 
 namespace FunDoNotes.Controllers
 {
@@ -20,12 +22,12 @@ namespace FunDoNotes.Controllers
         }
         [HttpPost("Register")]
         public IActionResult Register(UserRegistration userRegistration)
-        {         
-            var result=userBL.Register(userRegistration);
-            if(result!=null)
-                return Ok(new {success=true,message="Register Successful",data=result});
+        {
+            var result = userBL.Register(userRegistration);
+            if (result != null)
+                return Ok(new { success = true, message = "Register Successful", data = result });
             else
-                return BadRequest(new { success = false, message = "Register UnSuccessful"});
+                return BadRequest(new { success = false, message = "Register UnSuccessful" });
         }
         [HttpPost("Login")]
         public IActionResult Login(UserLogin userLogin)
@@ -37,12 +39,27 @@ namespace FunDoNotes.Controllers
                 return BadRequest(new { success = false, message = "Login UnSuccessful" });
 
         }
-        //[HttpGet]
-        //public string GetRandomToken()
-        //{
-        //    var jwt = new UserRl(_config);
-        //    var token = jwt.GenerateSecurityToken("fake@email.com",1);
-        //    return token;
-        //}
+        [HttpPost("ForgetPassword")]
+        public IActionResult ForgetPassword(string email)
+        {
+            var result = userBL.ForgetPassword(email);
+            if (result != null)
+                return Ok(new { success = true, message = "Reset link sent", data = result });
+            else
+                return BadRequest(new { success = false, message = "reset link not sent" });
+
+        }
+        [Authorize]
+        [HttpPost("ResetPasswordPassword")]
+        public IActionResult Reset_Password(ResetPassword resetPassword)
+        {
+            var emailId = User.FindFirst(ClaimTypes.Email).Value.ToString();
+            var result = userBL.Reset_Password(resetPassword, emailId);
+            if (result != null)
+                return Ok(new { success = true, message = "Password Reset success", data = result });
+            else
+                return BadRequest(new { success = false, message = "resetpassword not success" });
+
+        }
     }
 }

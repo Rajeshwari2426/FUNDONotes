@@ -10,5 +10,7 @@ namespace BusinessLayer.Interfaces
     {
         public UserEntity Register(UserRegistration userRegistration);
         public string Login(UserLogin userLogin);
+        public string ForgetPassword(string Email);
+        public string Reset_Password(ResetPassword resetPassword, string emailId);
     }
 }

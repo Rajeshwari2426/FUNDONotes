@@ -42,6 +42,30 @@ namespace BusinessLayer.Services
                 throw;
             }
         }
-                        
+
+        public string ForgetPassword(string Email)
+        {
+            try
+            {
+                return userRl.ForgetPassword(Email);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public string Reset_Password(ResetPassword resetPassword, string emailId)
+        {
+            try
+            {
+                return userRl.Reset_Password( resetPassword,emailId);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

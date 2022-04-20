@@ -82,6 +82,51 @@ namespace RepositoryLayer.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        public string ForgetPassword(string Email)
+        {
+            try
+            {
+                var result=funDoContext.UserTable.FirstOrDefault(x => x.Email == Email);
+                if (result != null)
+                {
+                    var token = GenerateSecurityToken(result.Email, result.UserId);
+                    new MSMQ().SendData2Queue(token);
+                    return token;
+                }
+                else
+                    return null;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public string Reset_Password(ResetPassword resetPassword, string emailId) 
+        {
+            try
+            {
+                var result = funDoContext.UserTable.FirstOrDefault(x => x.Email == emailId);
+
+                if (resetPassword.NewPassword == resetPassword.ConfirmPassword)
+                {
+                    // UserEntity.Password = resetPassword.NewPassword;
+                    result.Password = resetPassword.NewPassword;
+                    funDoContext.SaveChanges();
+                }
+                else
+                {
+                    return "passwords not matching";
+                }
+                return "password";
+               
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
     }
+
 }
