@@ -33,6 +33,7 @@ namespace RepositoryLayer.Services
                 userEntity.LastName = userRegistration.LastName;
                 userEntity.Email = userRegistration.Email;
                 userEntity.Password = userRegistration.Password;
+                userEntity.Password = PasswordEncryption(userRegistration.Password);
                 funDoContext.UserTable.Add(userEntity);
                 int result = funDoContext.SaveChanges();
                 if (result > 0)
@@ -52,9 +53,12 @@ namespace RepositoryLayer.Services
             try
             {
 
-                var result = funDoContext.UserTable.Where(x => x.Email == userLogin.Email && x.Password == userLogin.Password).FirstOrDefault();
-                if (result != null)
-                    return GenerateSecurityToken(result.Email,result.UserId);
+                var result = funDoContext.UserTable.Where(x => x.Email == userLogin.Email).FirstOrDefault();
+                string decryptPass = DecryptPassword(userLogin.Password);
+                if (result != null && decryptPass == userLogin.Password)
+                {
+                    return GenerateSecurityToken(result.Email, result.UserId);
+                }
                 else
                     return null;
 
@@ -125,6 +129,17 @@ namespace RepositoryLayer.Services
             {
                 throw;
             }
+        }
+        public static string PasswordEncryption(string password)
+        {
+            var passwordBytes = Encoding.UTF8.GetBytes(password);
+            return Convert.ToBase64String(passwordBytes);
+        }
+
+        public static string DecryptPassword(string encodedData)
+        {
+            var EncodedBytes = Convert.FromBase64String(encodedData);
+            return Encoding.UTF8.GetString(EncodedBytes);
         }
 
     }
