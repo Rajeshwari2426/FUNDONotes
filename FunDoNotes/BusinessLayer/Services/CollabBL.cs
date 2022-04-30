@@ -49,5 +49,16 @@ namespace BusinessLayer.Services
                 throw ex;
             }
         }
+        public List<CollabEntity> GetAllNotes()
+        {
+            try
+            {
+                return collabRL.GetAllNotes();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

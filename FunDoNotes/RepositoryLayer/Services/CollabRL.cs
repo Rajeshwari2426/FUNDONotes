@@ -81,6 +81,18 @@ namespace RepositoryLayer.Services
                 throw ex;
             }
         }
+        public List<CollabEntity> GetAllNotes()
+        {
+            try
+            {
+                var get = funDoContext.CollabTable.ToList();
+                return get;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }
