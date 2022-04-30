@@ -1,4 +1,5 @@
 ﻿using CommonLayer.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryLayer.Context;
@@ -17,13 +18,13 @@ namespace RepositoryLayer.Services
     public class UserRl : IUserRl
     {
         private readonly FunDoContext funDoContext;
-        private readonly IConfiguration configuration;  
+        private readonly IConfiguration configuration;
         public UserRl(FunDoContext funDoContext, IConfiguration configuration)
         {
             this.funDoContext = funDoContext;
-            this.configuration= configuration;
+            this.configuration = configuration;
         }
-        
+
         public UserEntity Register(UserRegistration userRegistration)
         {
             try
@@ -32,8 +33,8 @@ namespace RepositoryLayer.Services
                 userEntity.FirstName = userRegistration.FirstName;
                 userEntity.LastName = userRegistration.LastName;
                 userEntity.Email = userRegistration.Email;
-                userEntity.Password = userRegistration.Password;
-                userEntity.Password = PasswordEncryption(userRegistration.Password);
+                // userEntity.Password = userRegistration.Password;
+                userEntity.Password = EncryptPassword(userRegistration.Password);
                 funDoContext.UserTable.Add(userEntity);
                 int result = funDoContext.SaveChanges();
                 if (result > 0)
@@ -48,14 +49,13 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-        public  string Login(UserLogin userLogin)
+        public string Login(UserLogin userLogin)
         {
             try
             {
-
                 var result = funDoContext.UserTable.Where(x => x.Email == userLogin.Email).FirstOrDefault();
-                string decryptPass = DecryptPassword(userLogin.Password);
-                if (result != null && decryptPass == userLogin.Password)
+                string decryptPass = DecryptPassword(result.Password);
+                if (result != null || decryptPass ==userLogin.Password)
                 {
                     return GenerateSecurityToken(result.Email, result.UserId);
                 }
@@ -90,7 +90,7 @@ namespace RepositoryLayer.Services
         {
             try
             {
-                var result=funDoContext.UserTable.FirstOrDefault(x => x.Email == Email);
+                var result = funDoContext.UserTable.FirstOrDefault(x => x.Email == Email);
                 if (result != null)
                 {
                     var token = GenerateSecurityToken(result.Email, result.UserId);
@@ -106,7 +106,7 @@ namespace RepositoryLayer.Services
                 throw;
             }
         }
-        public string Reset_Password(ResetPassword resetPassword, string emailId) 
+        public string Reset_Password(ResetPassword resetPassword, string emailId)
         {
             try
             {
@@ -114,7 +114,6 @@ namespace RepositoryLayer.Services
 
                 if (resetPassword.NewPassword == resetPassword.ConfirmPassword)
                 {
-                    // UserEntity.Password = resetPassword.NewPassword;
                     result.Password = resetPassword.NewPassword;
                     funDoContext.SaveChanges();
                 }
@@ -123,25 +122,41 @@ namespace RepositoryLayer.Services
                     return "passwords not matching";
                 }
                 return "password";
-               
+
             }
             catch (Exception)
             {
                 throw;
             }
         }
-        public static string PasswordEncryption(string password)
+        public static string EncryptPassword(string password)
         {
-            var passwordBytes = Encoding.UTF8.GetBytes(password);
-            return Convert.ToBase64String(passwordBytes);
+            try
+            {
+                var passwordBytes = Encoding.UTF8.GetBytes(password);
+                return Convert.ToBase64String(passwordBytes);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
-
-        public static string DecryptPassword(string encodedData)
+        public static string DecryptPassword(string encodedPassword)
         {
-            var EncodedBytes = Convert.FromBase64String(encodedData);
-            return Encoding.UTF8.GetString(EncodedBytes);
-        }
+            try
+            {
+                var encodedBytes = Convert.FromBase64String(encodedPassword);
+                var res = Encoding.UTF8.GetString(encodedBytes);
+                return res;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
 
+        }      
     }
-
 }
+
+
+
