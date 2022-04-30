@@ -22,20 +22,14 @@ namespace FunDoNotes.Controllers
     {
         
             private readonly INotesBL notesBL;
-        //private readonly IMemoryCache memoryCache;
-        //private readonly IDistributedCache distributedCache;
-            
-            public NotesController(INotesBL notesBL)//, IMemoryCache memoryCache, IDistributedCache distributedCache)
+        
+            public NotesController(INotesBL notesBL)
             {
-                this.notesBL = notesBL;
-               //this.memoryCache = memoryCache;
-               // this.distributedCache = distributedCache;
-               
+                this.notesBL = notesBL;                           
             }
             [HttpPost("Create")]
             public IActionResult CreateNote(Notes createNotes)
-            {
-               
+            {               
                     long userID = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "UserId").Value);
                     var res = notesBL.CreateNote(createNotes, userID);
                     if (res != null)
@@ -47,11 +41,8 @@ namespace FunDoNotes.Controllers
                     {
                         
                         return BadRequest(new { success = false, message = "Failed to Create Note" });
-                    }
-               
-            }
-
-           
+                    }               
+            }          
            
             [HttpGet("GetAll")]
             public IActionResult RetriveNotes()
@@ -68,8 +59,7 @@ namespace FunDoNotes.Controllers
                     {
                         
                         return BadRequest(new { success = false, message = "Failed to Display Notes" });
-                    }
-                
+                    }               
                 
             }
 
@@ -194,34 +184,32 @@ namespace FunDoNotes.Controllers
                 }
             }
 
-            
-           
-            //[HttpGet("Redis")]
-            //public async Task<IActionResult> GetAllNotesUsingRedisCache()
-            //{
-            //    var cacheKey = "notesList";
-            //    string serializedNotesList;
-            //    var notesList = new List<NotesEntity>();
-            //    var redisNotesList = await distributedCache.GetAsync(cacheKey);
-            //    if (redisNotesList != null)
-            //    {
-            //        serializedNotesList = Encoding.UTF8.GetString(redisNotesList);
-            //        notesList = JsonConvert.DeserializeObject<List<NotesEntity>>(serializedNotesList);
-            //    }
-            //    else
-            //    {
-            //       long userID = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "UserId").Value);
-            //      notesList = (List<NotesEntity>)notesBL.RetriveNotes(userID);
-            //       serializedNotesList = JsonConvert.SerializeObject(notesList);
-            //        redisNotesList = Encoding.UTF8.GetBytes(serializedNotesList);
-            //        var options = new DistributedCacheEntryOptions()
-            //            .SetAbsoluteExpiration(DateTime.Now.AddMinutes(10))
-            //            .SetSlidingExpiration(TimeSpan.FromMinutes(2));
-            //        await distributedCache.SetAsync(cacheKey, redisNotesList, options);
-            //    }
-            //    return Ok(notesList);
-            //}
+        //[HttpGet("Redis")]
+        //public async Task<IActionResult> GetAllNotesUsingRedisCache()
+        //{
+        //    var cacheKey = "notesList";
+        //    string serializedNotesList;
+        //    var notesList = new List<NotesEntity>();
+        //    var redisNotesList = await distributedCache.GetAsync(cacheKey);
+        //    if (redisNotesList != null)
+        //    {
+        //        serializedNotesList = Encoding.UTF8.GetString(redisNotesList);
+        //        notesList = JsonConvert.DeserializeObject<List<NotesEntity>>(serializedNotesList);
+        //    }
+        //    else
+        //    {
+        //       long userID = Convert.ToInt32(User.Claims.FirstOrDefault(x => x.Type == "UserId").Value);
+        //      notesList = (List<NotesEntity>)notesBL.RetriveNotes(userID);
+        //       serializedNotesList = JsonConvert.SerializeObject(notesList);
+        //        redisNotesList = Encoding.UTF8.GetBytes(serializedNotesList);
+        //        var options = new DistributedCacheEntryOptions()
+        //            .SetAbsoluteExpiration(DateTime.Now.AddMinutes(10))
+        //            .SetSlidingExpiration(TimeSpan.FromMinutes(2));
+        //        await distributedCache.SetAsync(cacheKey, redisNotesList, options);
+        //    }
+        //    return Ok(notesList);
+        //}
 
-        
+
     }
 }
