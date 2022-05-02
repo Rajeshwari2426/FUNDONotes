@@ -61,7 +61,7 @@ namespace FunDoNotes.Controllers
                 return BadRequest(new { success = false, message = " Unsuccessful" });
         }       
         [HttpGet("Redis")]
-        public async Task<IActionResult> GetAllNotesUsingRedisCache()
+        public async Task<IActionResult> GetAllCollabsUsingRedisCache()
         {
             var cacheKey = "collabList";
             string serializedCollabList;
